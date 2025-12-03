@@ -83,6 +83,13 @@
       text-align: center;
       font-weight: bold;
     }
+    /* Kokkuvõtte tabeli värvid */
+    .correct-row {
+      background-color: #d4edda; /* hele roheline */
+    }
+    .wrong-row {
+      background-color: #f8d7da; /* hele punane */
+    }
   </style>
 </head>
 <body>
@@ -99,7 +106,7 @@
     <div id="top-bar">
       <button id="restart-btn">Alusta uuesti</button>
       <div id="top-bar-title"><span id="mode-title"></span></div>
-      <div></div>
+      <button id="cancel-btn">Katkesta</button>
     </div>
 
     <p id="instructions"></p>
@@ -347,140 +354,4 @@
 
       if (mode === "body") {
         currentWords = [...bodyWords];
-        document.getElementById("mode-title").textContent = "Kehaosad";
-        document.getElementById("instructions").textContent =
-          "Kuvatakse kehaosa eesti keeles. Kirjita hispaaniakeelne vastus (võid kasutada ka slängi). Kõik sõnad küsitakse korra.";
-      } else if (mode === "numbers") {
-        currentWords = buildNumberWords();
-        document.getElementById("mode-title").textContent = "Numbrid";
-        document.getElementById("instructions").textContent =
-          "Küsitakse 10 erinevat numbrit (1–100, sajad, tuhanded). Võid vastata hispaania sõnaga või lihtsalt numbriga.";
-      } else if (mode === "days") {
-        currentWords = [...daysAndDirs];
-        document.getElementById("mode-title").textContent = "Päevad ja suunad";
-        document.getElementById("instructions").textContent =
-          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Kirjita hispaaniakeelne vastus.";
-      }
-
-      document.getElementById("mode-select").style.display = "none";
-      document.getElementById("quiz-area").style.display = "block";
-      document.getElementById("estonian-word").textContent = "Vajuta “Alusta / järgmine”";
-    }
-
-    function pickNewWord() {
-      if (!currentWords.length) return;
-
-      if (usedIndices.length === currentWords.length) {
-        showSummary();
-        return;
-      }
-
-      let index;
-      do {
-        index = Math.floor(Math.random() * currentWords.length);
-      } while (usedIndices.includes(index));
-
-      usedIndices.push(index);
-      currentWord = currentWords[index];
-
-      document.getElementById("estonian-word").textContent = currentWord.et;
-      document.getElementById("answer-input").value = "";
-      document.getElementById("feedback").textContent = "";
-      document.getElementById("answer-input").focus();
-    }
-
-    function checkAnswer() {
-      if (!currentWord) return;
-
-      const inputRaw = document.getElementById("answer-input").value;
-      const input = normalize(inputRaw);
-      if (!input) {
-        document.getElementById("feedback").textContent =
-          "Kirjita palun vastus enne kontrollimist.";
-        return;
-      }
-
-      const correctNormalized = currentWord.es.map(normalize);
-      const isCorrect = correctNormalized.includes(input);
-
-      const feedback = document.getElementById("feedback");
-      const correctText = currentWord.es.join(", ");
-
-      results.push({
-        et: currentWord.et,
-        user: inputRaw,
-        correct: correctText,
-        ok: isCorrect
-      });
-
-      if (isCorrect) {
-        feedback.textContent = "ÕIGE! ✅ – " + correctText;
-      } else {
-        feedback.textContent = "❌ Vale. Õige(d): " + correctText;
-      }
-
-      speak(currentWord.es[0], "es-ES");
-    }
-
-    function showSummary() {
-      document.getElementById("quiz-area").style.display = "none";
-
-      if (!results.length) return;
-
-      const correctCount = results.filter(r => r.ok).length;
-      let html = `<h2>Kokkuvõte</h2>
-                  <p>Õigeid vastuseid: ${correctCount} / ${results.length}</p>`;
-
-      html += "<table><tr><th>Eesti sõna / number</th><th>Sinu vastus</th><th>Õige(d)</th></tr>";
-
-      results.forEach(row => {
-        html += `<tr>
-                   <td>${row.et}</td>
-                   <td>${row.user}</td>
-                   <td>${row.correct}</td>
-                 </tr>`;
-      });
-
-      html += "</table>";
-
-      document.getElementById("summary").innerHTML = html;
-      // näitame uuesti mooduse valikut, et saaks kohe uue bloki valida
-      document.getElementById("mode-select").style.display = "block";
-    }
-
-    function restartApp() {
-      currentMode = null;
-      currentWords = [];
-      usedIndices = [];
-      results = [];
-      currentWord = null;
-      document.getElementById("feedback").textContent = "";
-      document.getElementById("answer-input").value = "";
-      document.getElementById("summary").innerHTML = "";
-      document.getElementById("estonian-word").textContent = "Vali uuesti blokk ja vajuta “Alusta / järgmine”.";
-      showModeSelect();
-    }
-
-    // ----- Sündmused -----
-    document.getElementById("mode-body").addEventListener("click", () => startMode("body"));
-    document.getElementById("mode-numbers").addEventListener("click", () => startMode("numbers"));
-    document.getElementById("mode-days").addEventListener("click", () => startMode("days"));
-
-    document.getElementById("next-btn").addEventListener("click", pickNewWord);
-    document.getElementById("check-btn").addEventListener("click", checkAnswer);
-
-    document.getElementById("restart-btn").addEventListener("click", restartApp);
-
-    document.getElementById("answer-input").addEventListener("keydown", e => {
-      if (e.key === "Enter") checkAnswer();
-    });
-
-    // PWA service worker (GitHub Pages jaoks)
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("service-worker.js").catch(console.error);
-      });
-    }
-  </script>
-</body>
-</html>
+        document.getElementById("mode-title")
