@@ -92,23 +92,46 @@
     #last-result {
       margin-top: 20px;
     }
+    #vocab-area { display: none; margin-top: 20px; }
+    .inline-input { display:flex; gap:8px; align-items:center; }
+    .small-btn { padding:8px 10px; font-size:14px; }
+    .list-note { font-size:14px; color:#555; margin-top:6px; }
   </style>
 </head>
 <body>
   <h1>Hispaania keel – Kehaosad, numbrid, päevad ja suunad</h1>
 
-  <div id="mode-select">
-    <p>Vali blokk, mida harjutada:</p>
-    <button id="mode-body">Kehaosad</button>
-    <button id="mode-numbers">Numbrid (1–100, sajad, tuhanded)</button>
-    <button id="mode-days">Päevad ja suunad</button>
+  <div id="initial-select">
+    <p>Vali: </p>
+    <button id="select-vocab">Sõnavara (vaata sõnu)</button>
+    <button id="select-quiz">Kontrolli sõnu</button>
   </div>
 
+  <!-- Sõnavara ala: kolme nupuga ja tabeliga -->
+  <div id="vocab-area">
+    <div id="vocab-buttons" style="text-align:center; margin-bottom:8px;">
+      <button id="vocab-body">Kehaosad</button>
+      <button id="vocab-numbers">Numbrid (1–100, sajad, tuhanded)</button>
+      <button id="vocab-days">Päevad ja suunad</button>
+      <button id="vocab-back" class="small-btn">Tagasi</button>
+    </div>
+    <div id="vocab-note" class="list-note">Vali üks kategooria, et näha selle sõnu, mida hetkel saab kontrollida.</div>
+    <div id="vocab-list"></div>
+  </div>
+
+  <!-- Quiz ala (püsib peaaegu sama nagu enne) -->
   <div id="quiz-area" style="display:none;">
     <div id="top-bar">
       <button id="restart-btn">Alusta uuesti</button>
       <div id="top-bar-title"><span id="mode-title"></span></div>
       <button id="cancel-btn">Katkesta</button>
+    </div>
+
+    <div id="mode-select" style="margin-top:10px; text-align:center;">
+      <p>Vali blokk, mida harjutada:</p>
+      <button id="mode-body">Kehaosad</button>
+      <button id="mode-numbers">Numbrid (1–100, sajad, tuhanded)</button>
+      <button id="mode-days">Päevad ja suunad</button>
     </div>
 
     <p id="instructions"></p>
@@ -117,7 +140,11 @@
 
     <label>
       Sinu vastus hispaania keeles:
-      <input type="text" id="answer-input" autocomplete="off" />
+      <div class="inline-input">
+        <input type="text" id="answer-input" autocomplete="off" />
+        <button id="mic-btn" class="small-btn" title="Alusta häältuvastust (täidab vastuskasti)">🎤</button>
+        <button id="check-btn-inline" class="small-btn">Kontrolli</button>
+      </div>
     </label>
     <br />
  
@@ -317,6 +344,10 @@
     let currentMode = null;
     let lastResult = null; // ainult VIIMANE vastatud küsimus
 
+    // Speech Recognition
+    let recognition = null;
+    let recognizing = false;
+
     // -------- ABI --------
 
     function normalize(str) {
@@ -335,8 +366,9 @@
       window.speechSynthesis.speak(utterance);
     }
 
-    function showModeSelect() {
-      document.getElementById("mode-select").style.display = "block";
+    function showInitial() {
+      document.getElementById("initial-select").style.display = "block";
+      document.getElementById("vocab-area").style.display = "none";
       document.getElementById("quiz-area").style.display = "none";
     }
 
@@ -386,7 +418,8 @@
           "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Kirjuta hispaaniakeelne vastus.";
       }
 
-      document.getElementById("mode-select").style.display = "none";
+      document.getElementById("initial-select").style.display = "none";
+      document.getElementById("vocab-area").style.display = "none";
       document.getElementById("quiz-area").style.display = "block";
 
       pickNewWord();
@@ -484,12 +517,10 @@
       // Näita kokkuvõtet seni antud vastustest ja vii kasutaja tagasi blokkide valikusse
       document.getElementById("quiz-area").style.display = "none";
       renderSummary();
-      document.getElementById("mode-select").style.display = "block";
+      document.getElementById("initial-select").style.display = "block";
     }
 
     function restartApp() {
-      // Kui soovid kustutada kogu seansi (nt kui kasutaja valib uue blokki), 
-      // startMode funktsioon teeb selle juba ette kui uus mood alustatakse.
       currentMode = null;
       currentWords = [];
       usedIndices = [];
@@ -502,25 +533,70 @@
       document.getElementById("estonian-word").textContent =
         "Vali uuesti blokk ja vajuta “Järgmine”.";
       renderLastResult();
-      showModeSelect();
+      showInitial();
+    }
+
+    // -------- Sõnavara vaatamine --------
+    function showVocab(category) {
+      const listDiv = document.getElementById('vocab-list');
+      let items = [];
+      if (category === 'body') items = bodyWords.slice();
+      else if (category === 'days') items = daysAndDirs.slice();
+      else if (category === 'numbers') items = buildNumberWords();
+
+      let html = '<h3>Sõnavara: ' + (category === 'body' ? 'Kehaosad' : category === 'days' ? 'Päevad ja suunad' : 'Numbrid') + '</h3>';
+      html += "<table><tr><th>Eesti</th><th>Hispaania (näide)</th></tr>";
+      items.forEach(function(it) {
+        html += '<tr><td>' + it.et + '</td><td>' + (Array.isArray(it.es) ? it.es.slice(0,3).join(', ') : it.es) + '</td></tr>';
+      });
+      html += '</table>';
+      listDiv.innerHTML = html;
     }
 
     // -------- NUPUD --------
+
+    const selectVocabBtn = document.getElementById('select-vocab');
+    const selectQuizBtn = document.getElementById('select-quiz');
+    const vocabArea = document.getElementById('vocab-area');
+    const vocabBodyBtn = document.getElementById('vocab-body');
+    const vocabNumbersBtn = document.getElementById('vocab-numbers');
+    const vocabDaysBtn = document.getElementById('vocab-days');
+    const vocabBackBtn = document.getElementById('vocab-back');
 
     const modeBodyBtn = document.getElementById("mode-body");
     const modeNumbersBtn = document.getElementById("mode-numbers");
     const modeDaysBtn = document.getElementById("mode-days");
     const nextBtn = document.getElementById("next-btn");
     const checkBtn = document.getElementById("check-btn");
+    const checkBtnInline = document.getElementById("check-btn-inline");
     const restartBtn = document.getElementById("restart-btn");
     const cancelBtn = document.getElementById("cancel-btn");
     const answerInput = document.getElementById("answer-input");
+    const micBtn = document.getElementById('mic-btn');
+
+    selectVocabBtn.onclick = function() {
+      document.getElementById('initial-select').style.display = 'none';
+      vocabArea.style.display = 'block';
+      document.getElementById('vocab-note').textContent = 'Vali kategooria, et näha tabelit sõnadest, mida hetkel saab kontrollida.';
+      document.getElementById('vocab-list').innerHTML = '';
+    };
+    selectQuizBtn.onclick = function() {
+      document.getElementById('initial-select').style.display = 'none';
+      vocabArea.style.display = 'none';
+      document.getElementById('quiz-area').style.display = 'block';
+    };
+
+    vocabBodyBtn.onclick = function() { showVocab('body'); };
+    vocabNumbersBtn.onclick = function() { showVocab('numbers'); };
+    vocabDaysBtn.onclick = function() { showVocab('days'); };
+    vocabBackBtn.onclick = function() { showInitial(); };
 
     modeBodyBtn.onclick = function() { startMode("body"); };
     modeNumbersBtn.onclick = function() { startMode("numbers"); };
     modeDaysBtn.onclick = function() { startMode("days"); };
     nextBtn.onclick = function() { pickNewWord(); };
     checkBtn.onclick = function() { checkAnswer(); };
+    checkBtnInline.onclick = function() { checkAnswer(); };
     // nüüd: Alusta uuesti näitab kokkuvõtet seni antud vastustest (sama nagu Katkesta)
     restartBtn.onclick = function() { showSummary(); };
     // Katkesta: näita kokkuvõtet seni antud vastustest
@@ -532,12 +608,53 @@
       }
     });
 
+    // Speech recognition setup - täidab vastuskasti, ei tee automaatset kontrolli
+    function setupRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return null;
+      const r = new SpeechRecognition();
+      r.lang = 'es-ES';
+      r.interimResults = false;
+      r.maxAlternatives = 1;
+      r.onresult = function(event) {
+        const transcript = event.results[0][0].transcript || '';
+        answerInput.value = transcript;
+      };
+      r.onstart = function() { recognizing = true; micBtn.textContent = '⏺️'; };
+      r.onend = function() { recognizing = false; micBtn.textContent = '🎤'; };
+      r.onerror = function(e) { recognizing = false; micBtn.textContent = '🎤'; console.error('Speech recognition error', e); };
+      return r;
+    }
+
+    micBtn.addEventListener('click', function() {
+      if (!recognition) {
+        recognition = setupRecognition();
+        if (!recognition) {
+          alert('Sinu brauser ei toeta häältuvastust. Proovi Chrome/Edge mobiil või töölaud.');
+          return;
+        }
+      }
+      if (recognizing) {
+        recognition.stop();
+      } else {
+        try {
+          recognition.start();
+        } catch (e) {
+          // Firefox võib visata kui start kutsutud mitu korda
+          console.error(e);
+        }
+      }
+    });
+
     // PWA service worker
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function() {
         navigator.serviceWorker.register("service-worker.js").catch(function(e){console.error(e);});
       });
     }
+
+    // show initial view on load
+    showInitial();
   </script>
 </body>
 
