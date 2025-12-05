@@ -23,10 +23,14 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
+      padding: 20px 12px 40px;
+      box-sizing: border-box;
     }
     .app {
       background: rgba(255,255,255,0.96);
       max-width: 900px;
+      background: rgba(255,255,255,0.97);
+      max-width: 980px;
       width: 100%;
       margin: 0 auto;
       padding: 20px 24px;
@@ -37,6 +41,7 @@
     h1, h2, h3 {
       text-align: center;
     }
+    h1, h2, h3 { text-align: center; }
     button {
       padding: 10px 16px;
       margin: 6px 4px;
@@ -104,10 +109,30 @@
     #last-result {
       margin-top: 20px;
     }
+    #estonian-word { font-size: 22px; font-weight: bold; margin: 12px 0; }
+    #feedback { margin-top: 10px; font-size: 18px; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid #888; }
+    th, td { padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
+    #quiz-area { margin-top: 20px; }
+    #mode-select { text-align: center; margin-bottom: 10px; }
+    #mode-select p { margin-bottom: 8px; }
+    #top-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    #top-bar-title { flex: 1; text-align: center; font-weight: bold; }
+    .correct-row { background-color: #d4edda; }
+    .wrong-row { background-color: #f8d7da; }
+    #last-result { margin-top: 20px; }
     #vocab-area { display: none; margin-top: 20px; }
     .inline-input { display:flex; gap:8px; align-items:center; }
     .small-btn { padding:8px 10px; font-size:14px; }
     .list-note { font-size:14px; color:#555; margin-top:6px; }
+    .pill-row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:10px 0; }
+    .pill-row button { border-radius:20px; border:1px solid #999; background:#f7f7f7; }
+    .pill-row button.active { background:#ffe69b; border-color:#c58c00; }
+    .vocab-nav { display:flex; justify-content:space-between; gap:10px; margin-top:8px; align-items:center; }
+    .vocab-nav button { flex:1; }
+    .muted { color:#666; font-size:14px; }
   </style>
 </head>
 <body>
@@ -123,6 +148,7 @@
     <!-- Sõnavara ala: kolme nupuga ja tabeliga -->
     <div id="vocab-area">
       <div id="vocab-buttons" style="text-align:center; margin-bottom:8px;">
+      <div id="vocab-buttons" class="pill-row">
         <button id="vocab-body">Kehaosad</button>
         <button id="vocab-numbers">Numbrid (1–20, 25, 30, kümnesed...)</button>
         <button id="vocab-days">Päevad ja suunad</button>
@@ -148,166 +174,7 @@
       </div>
 
       <p id="instructions"></p>
-
-      <div id="estonian-word">Vajuta “Järgmine”</div>
-
-      <label>
-        Sinu vastus hispaania keeles:
-        <div class="inline-input">
-          <input type="text" id="answer-input" autocomplete="off" />
-          <button id="mic-btn" class="small-btn" title="Alusta häältuvastust (täidab vastuskasti)">🎤</button>
-          <button id="check-btn-inline" class="small-btn">Kontrolli</button>
-        </div>
-      </label>
-      <br />
-   
-      <button id="check-btn">Kontrolli</button>
-      <button id="next-btn">Järgmine</button>
-
-      <div id="feedback"></div>
-
-      <div id="last-result"></div>
-    </div>
-
-    <div id="summary"></div>
-  </div>
-
-  <script>
-    // -------- ANDMED --------
-
-    const bodyWords = [
-      { et: "pea", es: ["cabeza", "la cabeza", "cabecita", "el coco", "testa"] },
-      { et: "silm", es: ["ojo", "el ojo", "ojito", "ojitos"] },
-      { et: "nina", es: ["nariz", "la nariz", "naricita", "napia"] },
-      { et: "suu", es: ["boca", "la boca", "boquita", "hocico"] },
-      { et: "hammas", es: ["diente", "el diente", "dientecito", "muela", "la muela"] },
-      { et: "keel", es: ["lengua", "la lengua", "lengüita", "lenguita"] },
-      { et: "kõrv", es: ["oreja", "la oreja", "orejita", "orejitas"] },
-      { et: "kael", es: ["cuello", "el cuello", "cuellito"] },
-      { et: "õlg", es: ["hombro", "el hombro", "hombrito"] },
-      { et: "käsi (randmest allpool)", es: ["mano", "la mano", "manita", "manitas"] },
-      { et: "sõrm", es: ["dedo", "el dedo", "dedito", "deditos"] },
-      { et: "rind", es: ["pecho", "el pecho", "pechito", "pechitos"] },
-      { et: "selg", es: ["espalda", "la espalda", "espaldita"] },
-      {
-        et: "kõht",
-        es: [
-          "barriga", "la barriga",
-          "estomago", "estómago",
-          "el estomago", "el estómago",
-          "panza", "la panza", "pancita", "tripita"
-        ]
-      },
-      { et: "jalg", es: ["pierna", "la pierna", "piernita", "piernitas"] },
-      { et: "põlv", es: ["rodilla", "la rodilla", "rodillita"] },
-      {
-        et: "varvas",
-        es: [
-          "dedo del pie", "el dedo del pie",
-          "deditos del pie", "deditos"
-        ]
-      },
-      {
-        et: "tagumik",
-        es: [
-          "culo", "el culo",
-          "trasero", "el trasero",
-          "pompis",
-          "nalgas", "las nalgas",
-          "traserito"
-        ]
-      },
-      { et: "naeratus", es: ["sonrisa", "la sonrisa", "sonrisita"] },
-      { et: "ripsmed", es: ["pestañas", "las pestañas", "pestañitas"] },
-      { et: "huuled", es: ["labios", "los labios", "labiecitos"] },
-      { et: "põsk", es: ["mejilla", "la mejilla", "cachete", "el cachete", "cachetito"] },
-      { et: "põsed", es: ["mejillas", "las mejillas", "cachetes", "los cachetes"] },
-      { et: "kulm", es: ["ceja", "la ceja", "cejita"] },
-      { et: "kulmud", es: ["cejas", "las cejas", "cejitas"] },
-      {
-        et: "meeste suguelund",
-        es: [
-          "pene", "el pene",
-          "pito",
-          "verga",
-          "mi cosita",
-          "pajarito",
-          "polla"
-        ]
-      },
-      {
-        et: "naiste suguelund",
-        es: [
-          "vagina", "la vagina",
-          "chocho",
-          "chucha",
-          "pucha",
-          "cosita",
-          "chuchita",
-          "concha"
-        ]
-      }
-    ];
-
-    const daysAndDirs = [
-      { et: "esmaspäev", es: ["lunes", "el lunes"] },
-      { et: "teisipäev", es: ["martes", "el martes"] },
-      { et: "kolmapäev", es: ["miércoles", "miercoles", "el miércoles", "el miercoles"] },
-      { et: "neljapäev", es: ["jueves", "el jueves"] },
-      { et: "reede", es: ["viernes", "el viernes"] },
-      { et: "laupäev", es: ["sábado", "sabado", "el sábado", "el sabado"] },
-      { et: "pühapäev", es: ["domingo", "el domingo"] },
-
-      { et: "põhi", es: ["norte", "el norte"] },
-      { et: "lõuna", es: ["sur", "el sur"] },
-      { et: "ida", es: ["este", "el este"] },
-      { et: "lääs", es: ["oeste", "el oeste"] },
-
-      { et: "üles", es: ["arriba", "hacia arriba"] },
-      { et: "alla", es: ["abajo", "hacia abajo"] },
-      { et: "vasakule", es: ["a la izquierda", "izquierda"] },
-      { et: "paremale", es: ["a la derecha", "derecha"] },
-      { et: "edasi", es: ["adelante", "hacia adelante", "recto", "sigue recto"] },
-      { et: "tagasi", es: ["atrás", "atras", "hacia atrás", "hacia atras"] }
-    ];
-
-    function spanishNumber(n) {
-      n = Number(n);
-      if (!Number.isInteger(n) || n <= 0 || n > 9999) return String(n);
-
-      const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]; 
-      const teens = { 10: "diez", 11: "once", 12: "doce", 13: "trece", 14: "catorce", 15: "quince" };
-      const tensWords = {
-        2: "veinte",
-        3: "treinta",
-        4: "cuarenta",
-        5: "cincuenta",
-        6: "sesenta",
-        7: "setenta",
-        8: "ochenta",
-        9: "noventa"
-      };
-      const hundredsWords = {
-        1: "ciento",
-        2: "doscientos",
-        3: "trescientos",
-        4: "cuatrocientos",
-        5: "quinientos",
-        6: "seiscientos",
-        7: "setecientos",
-        8: "ochocientos",
-        9: "novecientos"
-      };
-
-      if (n <= 9) return units[n];
-      if (n >= 10 && n <= 15) return teens[n];
-      if (n < 20) return "dieci" + units[n - 10];
-
-      if (n === 20) return "veinte";
-      if (n > 20 && n < 30) return "veinti" + units[n - 20];
-
-      if (n < 100) {
-        const t = Math.floor(n / 10);
+@@ -311,85 +272,116 @@
         const u = n % 10;
         if (u === 0) return tensWords[t];
         return tensWords[t] + (t === 2 ? "" : " y ") + units[u];
@@ -342,6 +209,43 @@
       items.push({ et: "1000", es: [spanishNumber(1000), "1000"] });
       [31,42,53,64,75,86,97].forEach(n => items.push({ et: String(n), es: [spanishNumber(n), String(n)] }));
       return items;
+    function buildNumberVocabGroups() {
+      return [
+        {
+          title: "1–10",
+          items: Array.from({ length: 10 }, (_, i) => i + 1)
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "11–20",
+          items: Array.from({ length: 10 }, (_, i) => i + 11)
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "21–39 (erandid sees)",
+          items: [21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39]
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "Kümnesed 40–100",
+          items: [40,50,60,70,80,90,100]
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "Seganumbrid (42, 53, 64, 75, 86, 97)",
+          items: [42,53,64,75,86,97]
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "Sajad 100–900",
+          items: Array.from({ length: 9 }, (_, i) => (i + 1) * 100)
+            .map(n => ({ et: String(n), es: [spanishNumber(n), String(n)] }))
+        },
+        {
+          title: "Tuhat",
+          items: [{ et: "1000", es: [spanishNumber(1000), "1000"] }]
+        }
+      ];
     }
 
     function buildNumberPool() {
@@ -368,6 +272,9 @@
     let usedIndices = [];
     let results = [];
     let currentMode = null;
+    let currentVocabCategory = null;
+    let currentNumberGroup = 0;
+    const numberVocabGroups = buildNumberVocabGroups();
     let lastResult = null;
 
     let recognition = null;
@@ -393,145 +300,7 @@
     function showInitial() {
       document.getElementById("initial-select").style.display = "block";
       document.getElementById("vocab-area").style.display = "none";
-      document.getElementById("quiz-area").style.display = "none";
-    }
-
-    function renderLastResult() {
-      const div = document.getElementById("last-result");
-      if (!lastResult) { div.innerHTML = ""; return; }
-      const rowClass = lastResult.ok ? "correct-row" : "wrong-row";
-      let html = "<h3>Eelmine küsimus</h3>";
-      html += '<table><tr><th>Eesti</th><th>Sinu vastus</th><th>Õige(d)</th></tr>';
-      html += `<tr class="${rowClass}"><td>${lastResult.et}</td><td>${lastResult.user}</td><td>${lastResult.correct}</td></tr>`;
-      html += "</table>";
-      div.innerHTML = html;
-    }
-
-    function startMode(mode) {
-      currentMode = mode;
-      usedIndices = [];
-      results = [];
-      lastResult = null;
-      currentWord = null;
-      document.getElementById("feedback").textContent = "";
-      document.getElementById("answer-input").value = "";
-      document.getElementById("summary").innerHTML = "";
-      renderLastResult();
-
-      const MAX_QUIZ = 15;
-
-      if (mode === "body") {
-        const pool = bodyWords.slice();
-        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
-        document.getElementById("mode-title").textContent = "Kehaosad";
-        document.getElementById("instructions").textContent =
-          "Kuvatakse kehaosa eesti keeles. Kirjuta hispaaniakeelne vastus (võid kasutada ka slängi). Maksimaalselt 15 sõna.";
-      } else if (mode === "numbers") {
-        const pool = buildNumberPool();
-        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
-        document.getElementById("mode-title").textContent = "Numbrid";
-        document.getElementById("instructions").textContent =
-          "Küsitakse kuni 15 erinevat numbrit juhuslikult vahemikust 1–1000. Võid vastata hispaania sõnaga või lihtsalt numbriga.";
-      } else if (mode === "days") {
-        const pool = daysAndDirs.slice();
-        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
-        document.getElementById("mode-title").textContent = "Päevad ja suunad";
-        document.getElementById("instructions").textContent =
-          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Maksimaalselt 15 sõna.";
-      }
-
-      document.getElementById("initial-select").style.display = "none";
-      document.getElementById("vocab-area").style.display = "none";
-      document.getElementById("quiz-area").style.display = "block";
-
-      pickNewWord();
-    }
-
-    function pickNewWord() {
-      if (!currentWords.length) return;
-
-      if (usedIndices.length === currentWords.length) {
-        showSummary();
-        return;
-      }
-
-      let index;
-      do {
-        index = Math.floor(Math.random() * currentWords.length);
-      } while (usedIndices.indexOf(index) !== -1);
-
-      usedIndices.push(index);
-      currentWord = currentWords[index];
-
-      document.getElementById("estonian-word").textContent = currentWord.et;
-      document.getElementById("answer-input").value = "";
-      document.getElementById("feedback").textContent = "";
-      document.getElementById("answer-input").focus();
-    }
-
-    function checkAnswer() {
-      if (!currentWord) return;
-
-      const inputRaw = document.getElementById("answer-input").value;
-      const input = normalize(inputRaw);
-      if (!input) {
-        document.getElementById("feedback").textContent =
-          "Kirjuta palun vastus enne kontrollimist.";
-        return;
-      }
-
-      const correctNormalized = currentWord.es.map(normalize);
-      const isCorrect = correctNormalized.indexOf(input) !== -1;
-
-      const feedback = document.getElementById("feedback");
-      const correctText = currentWord.es.join(", ");
-
-      const row = {
-        et: currentWord.et,
-        user: inputRaw,
-        correct: correctText,
-        ok: isCorrect
-      };
-
-      results.push(row);
-      lastResult = row;
-      renderLastResult();
-
-      if (isCorrect) {
-        feedback.textContent = "ÕIGE! ✅ – " + correctText;
-      } else {
-        feedback.textContent = "❌ Vale. Õige(d): " + correctText;
-      }
-
-      speak(currentWord.es[0], "es-ES");
-    }
-
-    function renderSummary() {
-      const summaryDiv = document.getElementById("summary");
-      summaryDiv.innerHTML = "";
-
-      if (!results.length) {
-        summaryDiv.innerHTML = "<h2>Kokkuvõte</h2><p>Ühtegi vastust ei jõudnud anda.</p>";
-        return;
-      }
-
-      const correctCount = results.filter(r => r.ok).length;
-      let html = "<h2>Kokkuvõte</h2>" +
-                 "<p>Õigeid vastuseid: " + correctCount + " / " + results.length + "</p>";
-
-      html += "<table><tr><th>Eesti sõna / number</th><th>Sinu vastus</th><th>Õige(d)</th></tr>";
-
-      results.forEach(function(row) {
-        const rowClass = row.ok ? "correct-row" : "wrong-row";
-        html += '<tr class="' + rowClass + '">';
-        html += "<td>" + row.et + "</td>";
-        html += "<td>" + row.user + "</td>";
-        html += "<td>" + row.correct + "</td>";
-        html += "</tr>";
-      });
-
-      html += "</table>";
-
+@@ -535,67 +527,119 @@
       summaryDiv.innerHTML = html;
     }
 
@@ -559,6 +328,7 @@
 
     // -------- Sõnavara vaatamine --------
     function showVocab(category) {
+    function renderVocabTable(items, title) {
       const listDiv = document.getElementById('vocab-list');
       let items = [];
       if (category === 'body') items = bodyWords.slice();
@@ -566,12 +336,71 @@
       else if (category === 'numbers') items = buildNumberVocab();
 
       let html = '<h3>Sõnavara: ' + (category === 'body' ? 'Kehaosad' : category === 'days' ? 'Päevad ja suunad' : 'Numbrid') + '</h3>';
+      let html = `<h3>${title}</h3>`;
       html += "<table><tr><th>Eesti</th><th>Hispaania (näide)</th></tr>";
       items.forEach(function(it) {
         html += '<tr><td>' + it.et + '</td><td>' + (Array.isArray(it.es) ? it.es.slice(0,3).join(', ') : it.es) + '</td></tr>';
       });
       html += '</table>';
       listDiv.innerHTML = html;
+    }
+
+    function renderNumberGroup() {
+      const note = document.getElementById('vocab-note');
+      const listDiv = document.getElementById('vocab-list');
+      const clampedIndex = Math.max(0, Math.min(numberVocabGroups.length - 1, currentNumberGroup));
+      currentNumberGroup = clampedIndex;
+      const group = numberVocabGroups[currentNumberGroup];
+      const progress = `Blokk ${currentNumberGroup + 1} / ${numberVocabGroups.length}`;
+
+      let html = `<h3>Numbrid – ${group.title}</h3>`;
+      html += '<div class="vocab-nav">'
+            + `<button id="num-prev" ${currentNumberGroup === 0 ? 'disabled' : ''}>Eelmine blokk</button>`
+            + `<div class="muted">${progress}</div>`
+            + `<button id="num-next" ${currentNumberGroup === numberVocabGroups.length - 1 ? 'disabled' : ''}>Järgmine blokk</button>`
+            + '</div>';
+
+      html += "<table><tr><th>Number</th><th>Hispaania</th></tr>";
+      group.items.forEach(function(it) {
+        html += '<tr><td>' + it.et + '</td><td>' + (Array.isArray(it.es) ? it.es[0] : it.es) + '</td></tr>';
+      });
+      html += '</table>';
+
+      listDiv.innerHTML = html;
+      note.textContent = 'Numbrid on jagatud väiksemateks plokkideks, et vahetada edasi-tagasi ilma lehte hangumata.';
+
+      document.getElementById('num-prev').onclick = function() {
+        if (currentNumberGroup > 0) {
+          currentNumberGroup -= 1;
+          renderNumberGroup();
+        }
+      };
+      document.getElementById('num-next').onclick = function() {
+        if (currentNumberGroup < numberVocabGroups.length - 1) {
+          currentNumberGroup += 1;
+          renderNumberGroup();
+        }
+      };
+    }
+
+    // -------- Sõnavara vaatamine --------
+    function showVocab(category) {
+      currentVocabCategory = category;
+      document.querySelectorAll('.pill-row button').forEach(btn => btn.classList.remove('active'));
+
+      if (category === 'body') {
+        document.getElementById('vocab-body').classList.add('active');
+        document.getElementById('vocab-note').textContent = 'Kehaosad on toodud koos levinud variatsioonidega.';
+        renderVocabTable(bodyWords.slice(), 'Sõnavara: Kehaosad');
+      } else if (category === 'days') {
+        document.getElementById('vocab-days').classList.add('active');
+        document.getElementById('vocab-note').textContent = 'Päevad ja suunad.';
+        renderVocabTable(daysAndDirs.slice(), 'Sõnavara: Päevad ja suunad');
+      } else if (category === 'numbers') {
+        document.getElementById('vocab-numbers').classList.add('active');
+        currentNumberGroup = 0;
+        renderNumberGroup();
+      }
     }
 
     // -------- NUPUD --------
@@ -599,73 +428,3 @@
       document.getElementById('initial-select').style.display = 'none';
       vocabArea.style.display = 'block';
       document.getElementById('vocab-note').textContent = 'Vali kategooria, et näha tabelit sõnadest, mida hetkel saab kontrollida.';
-      document.getElementById('vocab-list').innerHTML = '';
-    };
-    selectQuizBtn.onclick = function() {
-      document.getElementById('initial-select').style.display = 'none';
-      vocabArea.style.display = 'none';
-      document.getElementById('quiz-area').style.display = 'block';
-    };
-
-    vocabBodyBtn.onclick = function() { showVocab('body'); };
-    vocabNumbersBtn.onclick = function() { showVocab('numbers'); };
-    vocabDaysBtn.onclick = function() { showVocab('days'); };
-    vocabBackBtn.onclick = function() { showInitial(); };
-
-    modeBodyBtn.onclick = function() { startMode("body"); };
-    modeNumbersBtn.onclick = function() { startMode("numbers"); };
-    modeDaysBtn.onclick = function() { startMode("days"); };
-    nextBtn.onclick = function() { pickNewWord(); };
-    checkBtn.onclick = function() { checkAnswer(); };
-    checkBtnInline.onclick = function() { checkAnswer(); };
-    restartBtn.onclick = function() { showSummary(); };
-    cancelBtn.onclick = function() { showSummary(); };
-
-    answerInput.addEventListener("keydown", function(e) {
-      if (e.key === "Enter") {
-        checkAnswer();
-      }
-    });
-
-    function setupRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return null;
-      const r = new SpeechRecognition();
-      r.lang = 'es-ES';
-      r.interimResults = false;
-      r.maxAlternatives = 1;
-      r.onresult = function(event) {
-        const transcript = event.results[0][0].transcript || '';
-        answerInput.value = transcript;
-      };
-      r.onstart = function() { recognizing = true; micBtn.textContent = '⏺️'; };
-      r.onend = function() { recognizing = false; micBtn.textContent = '🎤'; };
-      r.onerror = function(e) { recognizing = false; micBtn.textContent = '🎤'; console.error('Speech recognition error', e); };
-      return r;
-    }
-
-    micBtn.addEventListener('click', function() {
-      if (!recognition) {
-        recognition = setupRecognition();
-        if (!recognition) {
-          alert('Sinu brauser ei toeta häältuvastust. Proovi Chrome/Edge mobiil või töölaud.');
-          return;
-        }
-      }
-      if (recognizing) {
-        recognition.stop();
-      } else {
-        try { recognition.start(); } catch (e) { console.error(e); }
-      }
-    });
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function() {
-        navigator.serviceWorker.register("service-worker.js").catch(function(e){console.error(e);});
-      });
-    }
-
-    showInitial();
-  </script>
-</body>
-</html>
