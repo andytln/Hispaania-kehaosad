@@ -14,13 +14,25 @@
   <link rel="manifest" href="manifest.json" />
 
   <style>
+    /* Hispaania lipu triibud taustal (punane - kollane - punane) */
+    html, body { height: 100%; margin: 0; }
     body {
+      background: linear-gradient(to bottom, #A40000 0%, #A40000 22%, #FFD100 22%, #FFD100 78%, #A40000 78%, #A40000 100%);
       font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 40px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
+    }
+    .app {
+      background: rgba(255,255,255,0.96);
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px;
       border: 1px solid #ccc;
       border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     }
     h1, h2, h3 {
       text-align: center;
@@ -99,73 +111,75 @@
   </style>
 </head>
 <body>
-  <h1>Hispaania keel – Kehaosad, numbrid, päevad ja suunad</h1>
+  <div class="app">
+    <h1>Hispaania keel – Kehaosad, numbrid, päevad ja suunad</h1>
 
-  <div id="initial-select">
-    <p>Vali: </p>
-    <button id="select-vocab">Sõnavara (vaata sõnu)</button>
-    <button id="select-quiz">Kontrolli sõnu</button>
-  </div>
-
-  <!-- Sõnavara ala: kolme nupuga ja tabeliga -->
-  <div id="vocab-area">
-    <div id="vocab-buttons" style="text-align:center; margin-bottom:8px;">
-      <button id="vocab-body">Kehaosad</button>
-      <button id="vocab-numbers">Numbrid (1–100, sajad, tuhanded)</button>
-      <button id="vocab-days">Päevad ja suunad</button>
-      <button id="vocab-back" class="small-btn">Tagasi</button>
-    </div>
-    <div id="vocab-note" class="list-note">Vali üks kategooria, et näha selle sõnu, mida hetkel saab kontrollida.</div>
-    <div id="vocab-list"></div>
-  </div>
-
-  <!-- Quiz ala (püsib peaaegu sama nagu enne) -->
-  <div id="quiz-area" style="display:none;">
-    <div id="top-bar">
-      <button id="restart-btn">Alusta uuesti</button>
-      <div id="top-bar-title"><span id="mode-title"></span></div>
-      <button id="cancel-btn">Katkesta</button>
+    <div id="initial-select">
+      <p>Vali: </p>
+      <button id="select-vocab">Sõnavara (vaata sõnu)</button>
+      <button id="select-quiz">Kontrolli sõnu</button>
     </div>
 
-    <div id="mode-select" style="margin-top:10px; text-align:center;">
-      <p>Vali blokk, mida harjutada:</p>
-      <button id="mode-body">Kehaosad</button>
-      <button id="mode-numbers">Numbrid (1–100, sajad, tuhanded)</button>
-      <button id="mode-days">Päevad ja suunad</button>
-    </div>
-
-    <p id="instructions"></p>
-
-    <div id="estonian-word">Vajuta “Järgmine”</div>
-
-    <label>
-      Sinu vastus hispaania keeles:
-      <div class="inline-input">
-        <input type="text" id="answer-input" autocomplete="off" />
-        <button id="mic-btn" class="small-btn" title="Alusta häältuvastust (täidab vastuskasti)">🎤</button>
-        <button id="check-btn-inline" class="small-btn">Kontrolli</button>
+    <!-- Sõnavara ala: kolme nupuga ja tabeliga -->
+    <div id="vocab-area">
+      <div id="vocab-buttons" style="text-align:center; margin-bottom:8px;">
+        <button id="vocab-body">Kehaosad</button>
+        <button id="vocab-numbers">Numbrid (1–20, 25, 30, kümnesed...)</button>
+        <button id="vocab-days">Päevad ja suunad</button>
+        <button id="vocab-back" class="small-btn">Tagasi</button>
       </div>
-    </label>
-    <br />
- 
-    <button id="check-btn">Kontrolli</button>
-    <button id="next-btn">Järgmine</button>
+      <div id="vocab-note" class="list-note">Vali üks kategooria, et näha selle sõnu, mida hetkel saab kontrollida.</div>
+      <div id="vocab-list"></div>
+    </div>
 
-    <div id="feedback"></div>
+    <!-- Quiz ala -->
+    <div id="quiz-area" style="display:none;">
+      <div id="top-bar">
+        <button id="restart-btn">Alusta uuesti</button>
+        <div id="top-bar-title"><span id="mode-title"></span></div>
+        <button id="cancel-btn">Katkesta</button>
+      </div>
 
-    <div id="last-result"></div>
+      <div id="mode-select" style="margin-top:10px; text-align:center;">
+        <p>Vali blokk, mida harjutada:</p>
+        <button id="mode-body">Kehaosad</button>
+        <button id="mode-numbers">Numbrid (1–1000)</button>
+        <button id="mode-days">Päevad ja suunad</button>
+      </div>
+
+      <p id="instructions"></p>
+
+      <div id="estonian-word">Vajuta “Järgmine”</div>
+
+      <label>
+        Sinu vastus hispaania keeles:
+        <div class="inline-input">
+          <input type="text" id="answer-input" autocomplete="off" />
+          <button id="mic-btn" class="small-btn" title="Alusta häältuvastust (täidab vastuskasti)">🎤</button>
+          <button id="check-btn-inline" class="small-btn">Kontrolli</button>
+        </div>
+      </label>
+      <br />
+   
+      <button id="check-btn">Kontrolli</button>
+      <button id="next-btn">Järgmine</button>
+
+      <div id="feedback"></div>
+
+      <div id="last-result"></div>
+    </div>
+
+    <div id="summary"></div>
   </div>
-
-  <div id="summary"></div>
 
   <script>
     // -------- ANDMED --------
 
     const bodyWords = [
-      { et: "pea", es: ["cabeza", "la cabeza", "cabecita", "el coco"] },
+      { et: "pea", es: ["cabeza", "la cabeza", "cabecita", "el coco", "testa"] },
       { et: "silm", es: ["ojo", "el ojo", "ojito", "ojitos"] },
       { et: "nina", es: ["nariz", "la nariz", "naricita", "napia"] },
-      { et: "suu", es: ["boca", "la boca", "boquita"] },
+      { et: "suu", es: ["boca", "la boca", "boquita", "hocico"] },
       { et: "hammas", es: ["diente", "el diente", "dientecito", "muela", "la muela"] },
       { et: "keel", es: ["lengua", "la lengua", "lengüita", "lenguita"] },
       { et: "kõrv", es: ["oreja", "la oreja", "orejita", "orejitas"] },
@@ -199,7 +213,8 @@
           "culo", "el culo",
           "trasero", "el trasero",
           "pompis",
-          "nalgas", "las nalgas"
+          "nalgas", "las nalgas",
+          "traserito"
         ]
       },
       { et: "naeratus", es: ["sonrisa", "la sonrisa", "sonrisita"] },
@@ -216,7 +231,8 @@
           "pito",
           "verga",
           "mi cosita",
-          "pajarito"
+          "pajarito",
+          "polla"
         ]
       },
       {
@@ -227,7 +243,8 @@
           "chucha",
           "pucha",
           "cosita",
-          "chuchita"
+          "chuchita",
+          "concha"
         ]
       }
     ];
@@ -247,7 +264,6 @@
       { et: "lääs", es: ["oeste", "el oeste"] },
 
       { et: "üles", es: ["arriba", "hacia arriba"] },
-      // parandatud: 'hacia alla' -> 'hacia abajo' (õige vastus sõnale "alla")
       { et: "alla", es: ["abajo", "hacia abajo"] },
       { et: "vasakule", es: ["a la izquierda", "izquierda"] },
       { et: "paremale", es: ["a la derecha", "derecha"] },
@@ -259,7 +275,7 @@
       n = Number(n);
       if (!Number.isInteger(n) || n <= 0 || n > 9999) return String(n);
 
-      const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
+      const units = ["", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"]; 
       const teens = { 10: "diez", 11: "once", 12: "doce", 13: "trece", 14: "catorce", 15: "quince" };
       const tensWords = {
         2: "veinte",
@@ -294,7 +310,7 @@
         const t = Math.floor(n / 10);
         const u = n % 10;
         if (u === 0) return tensWords[t];
-        return tensWords[t] + " y " + units[u];
+        return tensWords[t] + (t === 2 ? "" : " y ") + units[u];
       }
 
       if (n === 100) return "cien";
@@ -317,22 +333,41 @@
       return thousandsPart + " " + spanishNumber(rem);
     }
 
-    function buildNumberWords() {
+    // Build a vocabulary list for numbers (used in Vocab view) containing 1-20, 25, 30, tens up to 100, hundreds and 1000 and some example numbers
+    function buildNumberVocab() {
+      const items = [];
+      // 1-20
+      for (let i = 1; i <= 20; i++) items.push({ et: String(i), es: [spanishNumber(i), String(i)] });
+      // 25, 30
+      [25, 30].forEach(n => items.push({ et: String(n), es: [spanishNumber(n), String(n)] }));
+      // tens up to 100 (40,50,...100) - 30 already included
+      [40,50,60,70,80,90,100].forEach(n => items.push({ et: String(n), es: [spanishNumber(n), String(n)] }));
+      // hundreds
+      for (let h = 1; h <= 9; h++) items.push({ et: String(h*100), es: [spanishNumber(h*100), String(h*100)] });
+      // thousand
+      items.push({ et: "1000", es: [spanishNumber(1000), "1000"] });
+      // examples for tens with units
+      [31,42,53,64,75,86,97].forEach(n => items.push({ et: String(n), es: [spanishNumber(n), String(n)] }));
+      return items;
+    }
+
+    // Build a large pool for numbers quiz: 1..1000
+    function buildNumberPool() {
       const pool = [];
-      for (let i = 1; i <= 100; i++) pool.push(i);
-      for (let i = 1; i <= 9; i++) pool.push(i * 100);
-      for (let i = 1; i <= 9; i++) pool.push(i * 1000);
+      for (let i = 1; i <= 1000; i++) {
+        pool.push({ et: String(i), es: [spanishNumber(i), String(i)] });
+      }
+      return pool;
+    }
 
-      const shuffled = pool.sort(function() { return Math.random() - 0.5; });
-      const selected = shuffled.slice(0, 10);
-
-      return selected.map(function(n) {
-        const word = spanishNumber(n);
-        return {
-          et: String(n),
-          es: [word, String(n)]
-        };
-      });
+    // utility: random sample of up to n items from array
+    function randomSample(arr, n) {
+      const copy = arr.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, n);
     }
 
     // -------- MUUTUJAD --------
@@ -351,12 +386,8 @@
     // -------- ABI --------
 
     function normalize(str) {
-      // kaitse null/undefined eest
-      return String(str || "")
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .trim();
+      return String(str || "").toLowerCase().normalize("NFD").replace(/[
+\/u0300-u036f]/g, "").trim();
     }
 
     function speak(text, lang) {
@@ -374,18 +405,11 @@
 
     function renderLastResult() {
       const div = document.getElementById("last-result");
-      if (!lastResult) {
-        div.innerHTML = "";
-        return;
-      }
+      if (!lastResult) { div.innerHTML = ""; return; }
       const rowClass = lastResult.ok ? "correct-row" : "wrong-row";
       let html = "<h3>Eelmine küsimus</h3>";
       html += '<table><tr><th>Eesti</th><th>Sinu vastus</th><th>Õige(d)</th></tr>';
-      html += `<tr class="${rowClass}">
-                 <td>${lastResult.et}</td>
-                 <td>${lastResult.user}</td>
-                 <td>${lastResult.correct}</td>
-               </tr>`;
+      html += `<tr class="${rowClass}"><td>${lastResult.et}</td><td>${lastResult.user}</td><td>${lastResult.correct}</td></tr>`;
       html += "</table>";
       div.innerHTML = html;
     }
@@ -401,21 +425,28 @@
       document.getElementById("summary").innerHTML = "";
       renderLastResult();
 
+      const MAX_QUIZ = 15; // piirame kontrollis küsitavate ühikute arvu
+
       if (mode === "body") {
-        currentWords = bodyWords.slice();
+        // juhuslikult 15 sõna kehast
+        const pool = bodyWords.slice();
+        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
         document.getElementById("mode-title").textContent = "Kehaosad";
         document.getElementById("instructions").textContent =
-          "Kuvatakse kehaosa eesti keeles. Kirjuta hispaaniakeelne vastus (võid kasutada ka slängi). Kõik sõnad küsitakse korra.";
+          "Kuvatakse kehaosa eesti keeles. Kirjuta hispaaniakeelne vastus (võid kasutada ka slängi). Maksimaalselt 15 sõna.";
       } else if (mode === "numbers") {
-        currentWords = buildNumberWords();
+        // pool 1..1000, aga küsitakse kuni 15
+        const pool = buildNumberPool();
+        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
         document.getElementById("mode-title").textContent = "Numbrid";
         document.getElementById("instructions").textContent =
-          "Küsitakse 10 erinevat numbrit (1–100, sajad, tuhanded). Võid vastata hispaania sõnaga või lihtsalt numbriga.";
+          "Küsitakse kuni 15 erinevat numbrit juhuslikult vahemikust 1–1000. Võid vastata hispaania sõnaga või lihtsalt numbriga.";
       } else if (mode === "days") {
-        currentWords = daysAndDirs.slice();
+        const pool = daysAndDirs.slice();
+        currentWords = randomSample(pool, Math.min(MAX_QUIZ, pool.length));
         document.getElementById("mode-title").textContent = "Päevad ja suunad";
         document.getElementById("instructions").textContent =
-          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Kirjuta hispaaniakeelne vastus.";
+          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Maksimaalselt 15 sõna.";
       }
 
       document.getElementById("initial-select").style.display = "none";
@@ -514,7 +545,6 @@
     }
 
     function showSummary() {
-      // Näita kokkuvõtet seni antud vastustest ja vii kasutaja tagasi blokkide valikusse
       document.getElementById("quiz-area").style.display = "none";
       renderSummary();
       document.getElementById("initial-select").style.display = "block";
@@ -542,7 +572,7 @@
       let items = [];
       if (category === 'body') items = bodyWords.slice();
       else if (category === 'days') items = daysAndDirs.slice();
-      else if (category === 'numbers') items = buildNumberWords();
+      else if (category === 'numbers') items = buildNumberVocab();
 
       let html = '<h3>Sõnavara: ' + (category === 'body' ? 'Kehaosad' : category === 'days' ? 'Päevad ja suunad' : 'Numbrid') + '</h3>';
       html += "<table><tr><th>Eesti</th><th>Hispaania (näide)</th></tr>";
@@ -597,9 +627,7 @@
     nextBtn.onclick = function() { pickNewWord(); };
     checkBtn.onclick = function() { checkAnswer(); };
     checkBtnInline.onclick = function() { checkAnswer(); };
-    // nüüd: Alusta uuesti näitab kokkuvõtet seni antud vastustest (sama nagu Katkesta)
     restartBtn.onclick = function() { showSummary(); };
-    // Katkesta: näita kokkuvõtet seni antud vastustest
     cancelBtn.onclick = function() { showSummary(); };
 
     answerInput.addEventListener("keydown", function(e) {
@@ -608,7 +636,7 @@
       }
     });
 
-    // Speech recognition setup - täidab vastuskasti, ei tee automaatset kontrolli
+    // Speech recognition setup
     function setupRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) return null;
@@ -637,12 +665,7 @@
       if (recognizing) {
         recognition.stop();
       } else {
-        try {
-          recognition.start();
-        } catch (e) {
-          // Firefox võib visata kui start kutsutud mitu korda
-          console.error(e);
-        }
+        try { recognition.start(); } catch (e) { console.error(e); }
       }
     });
 
