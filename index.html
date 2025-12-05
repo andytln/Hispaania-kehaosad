@@ -42,6 +42,8 @@
       border: 1px solid #ccc;
       border-radius: 12px;
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+      max-height: 100%;
+      overflow-y: auto; /* sisu kerib, raam jääb paigale */
     }
 
     h1, h2, h3, h4 {
@@ -135,6 +137,16 @@
       color: #555;
       margin-top: 6px;
     }
+
+    /* Sõnavara valiku nuppude rida jääb kerimisel nähtavale */
+    #vocab-buttons {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -151,7 +163,7 @@
     <div id="vocab-area" style="display:none;">
       <h2>Sõnavara</h2>
 
-      <div id="vocab-buttons" style="text-align:center; margin-bottom:10px;">
+      <div id="vocab-buttons" style="text-align:center;">
         <button id="vocab-numbers-btn">Numbrid</button>
         <button id="vocab-days-btn">Päevad, kuud ja suunad</button>
         <button id="vocab-body-btn">Kehaosad</button>
@@ -278,7 +290,7 @@
       return thousandsPart + " " + spanishNumber(rem);
     }
 
-    // ---------- SÕNAVARA ANDMED ----------
+    // ---------- SÕNAVARA ANDMED (VAADATAKS, MITTE TESTIKS) ----------
 
     const vocabWeekdays = [
       { et: "esmaspäev", es: "lunes" },
@@ -319,7 +331,7 @@
     ];
 
     const vocabBody = [
-      { et: "pea", it: "", es: "la cabeza" },
+      { et: "pea", es: "la cabeza" },
       { et: "juuksed", es: "el pelo" },
       { et: "otsmik", es: "la frente" },
       { et: "kulm", es: "la ceja" },
@@ -356,21 +368,21 @@
       { et: "varvas", es: "el dedo del pie" }
     ];
 
-    // ---------- TESTI ANDMED (rohkem variante ja slängi) ----------
+    // ---------- TESTI ANDMED (PALJU VARIANTE + SLÄNG) ----------
 
     const bodyWords = [
       { et: "pea", es: ["cabeza", "la cabeza", "cabecita", "el coco", "testa"] },
       { et: "silm", es: ["ojo", "el ojo", "ojito", "ojitos"] },
       { et: "nina", es: ["nariz", "la nariz", "naricita", "napia"] },
-      { et: "suu", es: ["boca", "la boca", "boquita", "hocico"] },
-      { et: "hammas", es: ["diente", "el diente", "dientecito", "muela", "la muela"] },
+      { et: "suu", es: ["boca", "la boca", "boquita", "hocico", "jeta", "la jeta"] },
+      { et: "hammas", es: ["diente", "el diente", "dientecito", "muela", "la muela", "piño"] },
       { et: "keel", es: ["lengua", "la lengua", "lengüita", "lenguita"] },
       { et: "kõrv", es: ["oreja", "la oreja", "orejita", "orejitas"] },
-      { et: "kael", es: ["cuello", "el cuello", "cuellito"] },
+      { et: "kael", es: ["cuello", "el cuello", "cuellito", "pescuezo", "el pescuezo"] },
       { et: "õlg", es: ["hombro", "el hombro", "hombrito"] },
-      { et: "käsi (randmest allpool)", es: ["mano", "la mano", "manita", "manitas"] },
+      { et: "käsi (randmest allpool)", es: ["mano", "la mano", "manita", "manitas", "garra"] },
       { et: "sõrm", es: ["dedo", "el dedo", "dedito", "deditos"] },
-      { et: "rind", es: ["pecho", "el pecho", "pechito", "pechitos"] },
+      { et: "rind", es: ["pecho", "el pecho", "pechito", "pechitos", "teta", "tetas", "bubis"] },
       { et: "selg", es: ["espalda", "la espalda", "espaldita"] },
       {
         et: "kõht",
@@ -378,7 +390,7 @@
           "barriga", "la barriga",
           "estomago", "estómago",
           "el estomago", "el estómago",
-          "panza", "la panza", "pancita", "tripita"
+          "panza", "la panza", "pancita", "tripita", "barriguita", "vientre"
         ]
       },
       { et: "jalg", es: ["pierna", "la pierna", "piernita", "piernitas"] },
@@ -395,16 +407,16 @@
         es: [
           "culo", "el culo",
           "trasero", "el trasero",
-          "pompis",
+          "pompis", "pompas",
           "nalgas", "las nalgas",
-          "traserito"
+          "traserito", "retaguardia"
         ]
       },
       { et: "naeratus", es: ["sonrisa", "la sonrisa", "sonrisita"] },
       { et: "ripsmed", es: ["pestañas", "las pestañas", "pestañitas"] },
-      { et: "huuled", es: ["labios", "los labios", "labiecitos"] },
+      { et: "huuled", es: ["labios", "los labios", "labiecitos", "morros", "los morros"] },
       { et: "põsk", es: ["mejilla", "la mejilla", "cachete", "el cachete", "cachetito"] },
-      { et: "põsed", es: ["mejillas", "las mejillas", "cachetes", "los cachetes"] },
+      { et: "põsed", es: ["mejillas", "las mejillas", "cachetes", "los cachetes", "cachetitos"] },
       { et: "kulm", es: ["ceja", "la ceja", "cejita"] },
       { et: "kulmud", es: ["cejas", "las cejas", "cejitas"] },
       {
@@ -415,7 +427,9 @@
           "verga",
           "mi cosita",
           "pajarito",
-          "polla"
+          "polla",
+          "mi miembro",
+          "pirulín"
         ]
       },
       {
@@ -427,7 +441,8 @@
           "pucha",
           "cosita",
           "chuchita",
-          "concha"
+          "concha",
+          "parte íntima", "parte intima"
         ]
       }
     ];
@@ -435,10 +450,16 @@
     const daysAndDirs = [
       { et: "esmaspäev", es: ["lunes", "el lunes"] },
       { et: "teisipäev", es: ["martes", "el martes"] },
-      { et: "kolmapäev", es: ["miércoles", "miercoles", "el miércoles", "el miercoles"] },
+      {
+        et: "kolmapäev",
+        es: ["miércoles", "miercoles", "el miércoles", "el miercoles"]
+      },
       { et: "neljapäev", es: ["jueves", "el jueves"] },
       { et: "reede", es: ["viernes", "el viernes"] },
-      { et: "laupäev", es: ["sábado", "sabado", "el sábado", "el sabado"] },
+      {
+        et: "laupäev",
+        es: ["sábado", "sabado", "el sábado", "el sabado"]
+      },
       { et: "pühapäev", es: ["domingo", "el domingo"] },
 
       { et: "põhi", es: ["norte", "el norte"] },
@@ -446,12 +467,18 @@
       { et: "ida", es: ["este", "el este"] },
       { et: "lääs", es: ["oeste", "el oeste"] },
 
-      { et: "üles", es: ["arriba", "hacia arriba"] },
-      { et: "alla", es: ["abajo", "hacia abajo"] },
+      { et: "üles", es: ["arriba", "hacia arriba", "pa arriba", "para arriba"] },
+      { et: "alla", es: ["abajo", "hacia abajo", "pa abajo", "para abajo"] },
       { et: "vasakule", es: ["a la izquierda", "izquierda"] },
       { et: "paremale", es: ["a la derecha", "derecha"] },
-      { et: "edasi", es: ["adelante", "hacia adelante", "recto", "sigue recto"] },
-      { et: "tagasi", es: ["atrás", "atras", "hacia atrás", "hacia atras"] }
+      {
+        et: "edasi",
+        es: ["adelante", "hacia adelante", "recto", "sigue recto", "todo recto"]
+      },
+      {
+        et: "tagasi",
+        es: ["atrás", "atras", "hacia atrás", "hacia atras", "para atrás", "pa atrás"]
+      }
     ];
 
     function buildNumberWords() {
@@ -465,9 +492,16 @@
 
       return selected.map(function (n) {
         const word = spanishNumber(n);
+        const forms = [word, String(n)];
+        if (n === 1) {
+          forms.push("un", "una");
+        }
+        if (n === 100) {
+          forms.push("ciento");
+        }
         return {
           et: String(n),
-          es: [word, String(n)]
+          es: forms
         };
       });
     }
@@ -585,12 +619,12 @@
         currentWords = buildNumberWords();
         document.getElementById("mode-title").textContent = "Numbrid";
         document.getElementById("instructions").textContent =
-          "Küsitakse juhuslikke numbreid (1–100, sajad, tuhanded). Võid vastata hispaania sõnaga või lihtsalt numbriga.";
+          "Küsitakse juhuslikke numbreid (1–100, sajad, tuhanded). Võid vastata hispaania sõnaga või lihtsalt numbriga (nt 1 / uno / un / una).";
       } else if (mode === "days") {
         currentWords = daysAndDirs.slice();
         document.getElementById("mode-title").textContent = "Päevad ja suunad";
         document.getElementById("instructions").textContent =
-          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Kirjuta hispaaniakeelne vastus.";
+          "Küsitakse nädalapäevi, ilmakaari ja suundi (üles, alla, vasakule, paremale, edasi, tagasi). Võid kasutada ka kõnekeelseid variante (nt pa arriba).";
       }
 
       questionLimit = Math.min(MAX_QUESTIONS, currentWords.length);
@@ -730,6 +764,13 @@
     btnVocab.onclick = showVocab;
     btnQuiz.onclick = showQuiz;
 
+    function goBackFromVocab() {
+      showInitial();
+      // kerime ka risti üles, et iPhone'il ei jääks kuhugi keskele kinni
+      document.querySelector('.app').scrollTop = 0;
+      window.scrollTo(0, 0);
+    }
+
     // ---------- SÕNAVARA BLOKKIDE NUPUD ----------
 
     const vocabNumbersBtn = document.getElementById("vocab-numbers-btn");
@@ -764,7 +805,11 @@
           html += "<tr><td>" + n + "</td><td>" + spanishNumber(n) + "</td></tr>";
         });
 
-        html += "</tbody></table></div>";
+        html += "</tbody></table>";
+        html += "<div style='text-align:center; margin-top:12px;'>";
+        html += "<button type='button' onclick='goBackFromVocab()'>Tagasi</button>";
+        html += "</div>";
+        html += "</div>";
       } else if (category === "days") {
         html += "<div class='vocab-block'>";
         html += "<h3>Päevad, kuud ja suunad</h3>";
@@ -790,6 +835,10 @@
         });
         html += "</tbody></table>";
 
+        html += "<div style='text-align:center; margin-top:12px;'>";
+        html += "<button type='button' onclick='goBackFromVocab()'>Tagasi</button>";
+        html += "</div>";
+
         html += "</div>";
       } else if (category === "body") {
         html += "<div class='vocab-block'>";
@@ -798,7 +847,11 @@
         vocabBody.forEach(function (item) {
           html += "<tr><td>" + item.et + "</td><td>" + item.es + "</td></tr>";
         });
-        html += "</tbody></table></div>";
+        html += "</tbody></table>";
+        html += "<div style='text-align:center; margin-top:12px;'>";
+        html += "<button type='button' onclick='goBackFromVocab()'>Tagasi</button>";
+        html += "</div>";
+        html += "</div>";
       }
 
       listDiv.innerHTML = html;
@@ -807,7 +860,7 @@
     vocabNumbersBtn.onclick = function () { showVocabCategory("numbers"); };
     vocabDaysBtn.onclick = function () { showVocabCategory("days"); };
     vocabBodyBtn.onclick = function () { showVocabCategory("body"); };
-    vocabBackBtn.onclick = function () { showInitial(); };
+    vocabBackBtn.onclick = goBackFromVocab;
 
     // ---------- NUPUD TESTI JAOKS ----------
 
